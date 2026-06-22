@@ -14,6 +14,7 @@ model User {
   email        String   @unique
   name         String?
   role         String   @default("employee") // ceo, manager, tl, employee
+  status       String   @default("Active") // Active, Pending
   department   String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -46,4 +47,16 @@ model LeaveRequest {
   reason    String
   status    String   @default("Pending") // Pending, Approved, Denied
   createdAt DateTime @default(now())
+}
+
+model LandingContent {
+  id                String   @id @default(uuid())
+  heroTitleLine1    String   @default("Manage Your Team")
+  heroTitleGradient String   @default("With Precision")
+  heroSubtitle      String   @default("The zero-compromise workspace built exclusively for high-velocity software teams. Seamlessly integrate role-based access, attendance tracking, and executive analytics.")
+  
+  features          Json?
+  workflow          Json?
+
+  updatedAt         DateTime @updatedAt
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import ManagerTeamView from '@/components/team/ManagerTeamView';
 import TLTeamView from '@/components/team/TLTeamView';
-import { getCompanyDirectory, getSquad } from '@/actions/user.actions';
+import { getCompanyDirectory, getSquad, getPendingUsers } from '@/actions/user.actions';
 
 export default async function TeamPage() {
   const cookieStore = await cookies();
@@ -30,9 +30,11 @@ export default async function TeamPage() {
 
   let members: any[] = [];
   let squad: any[] = [];
+  let pendingUsers: any[] = [];
 
   if (role === 'manager' || role === 'ceo') {
     members = await getCompanyDirectory();
+    pendingUsers = await getPendingUsers();
   } else if (role === 'tl') {
     squad = await getSquad(user.id);
   }
@@ -51,7 +53,7 @@ export default async function TeamPage() {
 
       <div style={{ display: 'grid', gap: '2rem' }}>
         {(role === 'manager' || role === 'ceo') ? (
-          <ManagerTeamView initialMembers={members} />
+          <ManagerTeamView initialMembers={members} pendingUsers={pendingUsers} />
         ) : (
           <TLTeamView squad={squad} />
         )}

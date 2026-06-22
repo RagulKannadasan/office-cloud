@@ -2,8 +2,12 @@ import Link from 'next/link';
 import Hero from '@/components/landing/Hero';
 import FeaturesGrid from '@/components/landing/FeaturesGrid';
 import Workflow from '@/components/landing/Workflow';
+import ThemeToggle from '@/components/ThemeToggle';
+import { getLandingContent } from '@/actions/admin.actions';
 
-export default function Home() {
+export default async function Home() {
+  const content = await getLandingContent();
+
   return (
     <>
       <nav className="container nav" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -11,15 +15,20 @@ export default function Home() {
           <div style={{ width: '24px', height: '24px', background: 'var(--primary-color)', borderRadius: '6px' }}></div>
           Office Cloud
         </Link>
-        <div className="nav-links">
+        <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <ThemeToggle />
           <Link href="/login" className="btn btn-outline" style={{ padding: '0.5rem 1.2rem' }}>Sign In</Link>
         </div>
       </nav>
 
       <main className="main-content">
-        <Hero />
-        <FeaturesGrid />
-        <Workflow />
+        <Hero 
+          titleLine1={content.heroTitleLine1} 
+          titleGradient={content.heroTitleGradient} 
+          subtitle={content.heroSubtitle} 
+        />
+        <FeaturesGrid features={content.features as any[]} />
+        <Workflow steps={content.workflow as any[]} />
       </main>
 
       <footer style={{ 

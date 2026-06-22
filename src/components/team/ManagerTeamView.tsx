@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { createTeamMember, removeTeamMember } from '@/actions/user.actions';
+import { createTeamMember, removeTeamMember, approveUser } from '@/actions/user.actions';
 
-export default function ManagerTeamView({ initialMembers }: { initialMembers: any[] }) {
+export default function ManagerTeamView({ initialMembers, pendingUsers = [] }: { initialMembers: any[], pendingUsers?: any[] }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newMember, setNewMember] = useState({ email: '', name: '', role: 'employee', department: 'Engineering', tlId: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,7 +17,8 @@ export default function ManagerTeamView({ initialMembers }: { initialMembers: an
       name: newMember.name,
       role: newMember.role,
       department: newMember.department,
-      teamLeaderId: newMember.role === 'employee' && newMember.tlId ? newMember.tlId : null
+      teamLeaderId: newMember.role === 'employee' && newMember.tlId ? newMember.tlId : null,
+      status: 'Active'
     });
     setShowAddModal(false);
     setNewMember({ email: '', name: '', role: 'employee', department: 'Engineering', tlId: '' });
@@ -30,9 +31,63 @@ export default function ManagerTeamView({ initialMembers }: { initialMembers: an
     }
   };
 
+  const handleApprove = async (id: string) => {
+    await approveUser(id);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      
+      {pendingUsers.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-color)' }}>
+            <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary-color)' }}></span>
+            Pending Approvals ({pendingUsers.length})
+          </h3>
+          <div className="glass-panel" style={{ border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                  <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Email / Name</th>
+                  <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Requested On</th>
+                  <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingUsers.map(user => (
+                  <tr key={user.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                    <td style={{ padding: '1rem' }}>
+                      <div style={{ fontWeight: 600 }}>{user.email}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{user.name}</div>
+                    </td>
+                    <td style={{ padding: '1rem', color: 'var(--text-secondary)' }}>
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
+                      <button 
+                        className="btn" 
+                        style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}
+                        onClick={() => handleApprove(user.id)}
+                      >
+                        Approve Access
+                      </button>
+                      <button 
+                        className="btn-outline" 
+                        style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderColor: 'var(--danger-color)', color: 'var(--danger-color)' }}
+                        onClick={() => handleRemove(user.id)}
+                      >
+                        Reject
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: pendingUsers.length > 0 ? '2rem' : '0' }}>
         <h2>Company Directory</h2>
         <button className="btn" onClick={() => setShowAddModal(true)}>+ Add Member</button>
       </div>

@@ -24,17 +24,33 @@ export async function POST(request: Request) {
     if (!dbUser) {
       // For initial setup, check env
       let defaultRole = 'employee';
-      if (email === process.env.CEO_EMAIL || email.includes('ceo')) defaultRole = 'ceo';
-      else if (email === process.env.MANAGER_EMAIL || email.includes('manager')) defaultRole = 'manager';
-      else if (email.includes('tl')) defaultRole = 'tl';
+      let defaultStatus = 'Pending';
+      
+      if (email === process.env.CEO_EMAIL || email.includes('ceo')) {
+        defaultRole = 'ceo';
+        defaultStatus = 'Active';
+      } else if (email === process.env.MANAGER_EMAIL || email.includes('manager')) {
+        defaultRole = 'manager';
+        defaultStatus = 'Active';
+      } else if (email.includes('tl')) {
+        defaultRole = 'tl';
+      }
       
       dbUser = await prisma.user.create({
         data: {
           email,
           name: email.split('@')[0],
-          role: defaultRole
+          role: defaultRole,
+          status: defaultStatus
         }
       });
+    }
+
+    if (dbUser.status === 'Pending') {
+      // Clear OTP hash so they can't reuse it
+      const response = NextResponse.json({ pending: true });
+      response.cookies.delete('otp_hash');
+      return response;
     }
 
     const token = await signToken({ email: dbUser.email, role: dbUser.role, id: dbUser.id });

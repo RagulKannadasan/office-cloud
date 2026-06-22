@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/utils/auth';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -26,7 +27,8 @@ export default async function DashboardPage() {
     <>
       <nav className="container nav">
         <Link href="/" className="nav-logo">Office Cloud</Link>
-        <div className="nav-links">
+        <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <ThemeToggle />
           <span style={{ color: 'var(--text-secondary)' }}>{user.email}</span>
           <form action={signOut}>
             <button type="submit" className="btn btn-outline" style={{ padding: '0.5rem 1rem' }}>Sign Out</button>
@@ -41,16 +43,30 @@ export default async function DashboardPage() {
 
         <div className="dashboard-grid">
           {role === 'ceo' && (
-            <>
-              <div className="dashboard-card glass-panel">
-                <h3 className="dashboard-card-title">Company Overview</h3>
+            <Link href="/dashboard/reports" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div className="dashboard-card glass-panel" style={{ height: '100%', cursor: 'pointer' }}>
+                <h3 className="dashboard-card-title">Executive Analytics</h3>
                 <p>Global financial analytics, overall project progression, and high-level health metrics.</p>
               </div>
-              <div className="dashboard-card glass-panel">
-                <h3 className="dashboard-card-title">Executive Reports</h3>
-                <p>Access confidential strategic documents and burn rate analysis.</p>
+            </Link>
+          )}
+
+          {(role === 'ceo' || role === 'manager') && (
+            <Link href="/dashboard/admin" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div className="dashboard-card glass-panel" style={{ height: '100%', cursor: 'pointer', border: '1px solid var(--primary-color)' }}>
+                <h3 className="dashboard-card-title">App Admin (CMS)</h3>
+                <p>Manage core application settings and public landing page content.</p>
               </div>
-            </>
+            </Link>
+          )}
+
+          {(role === 'manager' || role === 'tl') && (
+            <Link href="/dashboard/reports" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div className="dashboard-card glass-panel" style={{ height: '100%', cursor: 'pointer' }}>
+                <h3 className="dashboard-card-title">Squad Reports</h3>
+                <p>View aggregated attendance logs and velocity metrics for your direct reports.</p>
+              </div>
+            </Link>
           )}
 
           {(role === 'ceo' || role === 'manager' || role === 'tl') && (
@@ -62,22 +78,24 @@ export default async function DashboardPage() {
             </Link>
           )}
 
-          {(role === 'ceo' || role === 'manager' || role === 'tl') && (
-            <div className="dashboard-card glass-panel">
-              <h3 className="dashboard-card-title">Project Workflows</h3>
-              <p>Kanban boards, sprint planning, and task allocations.</p>
+          <Link href="/dashboard/directory" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="dashboard-card glass-panel" style={{ height: '100%', cursor: 'pointer' }}>
+              <h3 className="dashboard-card-title">Employee Directory</h3>
+              <p>Search colleagues, view roles, and find squad assignments across the organization.</p>
             </div>
-          )}
+          </Link>
 
-          <div className="dashboard-card glass-panel">
-            <h3 className="dashboard-card-title">My Tasks</h3>
-            <p>View your assigned tickets, upcoming deadlines, and daily standup notes.</p>
-          </div>
-          
           <Link href="/dashboard/attendance" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="dashboard-card glass-panel" style={{ height: '100%', cursor: 'pointer' }}>
-              <h3 className="dashboard-card-title">Attendance & Timesheets</h3>
-              <p>Check in/out, view timesheets, and apply for leaves.</p>
+              <h3 className="dashboard-card-title">Attendance</h3>
+              <p>Check in/out and view your personal timesheets.</p>
+            </div>
+          </Link>
+
+          <Link href="/dashboard/leave" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="dashboard-card glass-panel" style={{ height: '100%', cursor: 'pointer' }}>
+              <h3 className="dashboard-card-title">Leave Management</h3>
+              <p>{role === 'employee' ? 'Request time off and track status.' : 'Approve/deny squad requests and manage your own.'}</p>
             </div>
           </Link>
         </div>

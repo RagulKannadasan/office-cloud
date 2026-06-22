@@ -1,6 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
+  /* Light Mode Variables */
+  --bg-color: #f8fafc;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --danger-color: #ef4444;
+  --success-color: #10b981;
+  --h1-grad-start: #0f172a;
+  --h1-grad-end: #4f46e5;
+}
+
+[data-theme='dark'] {
+  /* Dark Mode Variables */
   --bg-color: #0b0f19;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
@@ -10,6 +26,8 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --danger-color: #ef4444;
   --success-color: #10b981;
+  --h1-grad-start: #ffffff;
+  --h1-grad-end: #a5b4fc;
 }
 
 * {
@@ -37,7 +55,7 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   font-size: 3rem;
-  background: linear-gradient(to right, #fff, #a5b4fc);
+  background: linear-gradient(to right, var(--h1-grad-start), var(--h1-grad-end));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -120,7 +138,7 @@ h1 {
 .nav-logo {
   font-size: 1.5rem;
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
   text-decoration: none;
 }
 
@@ -136,7 +154,7 @@ h1 {
 }
 
 .nav-link:hover {
-  color: white;
+  color: var(--text-primary);
 }
 
 /* Page Layouts */
@@ -239,12 +257,26 @@ h1 {
 }
 
 .animated-gradient-text {
-  background: linear-gradient(270deg, #6366f1, #a5b4fc, #38bdf8, #6366f1);
+  background: linear-gradient(270deg, var(--h1-grad-start), var(--h1-grad-end), #38bdf8, var(--h1-grad-start));
   background-size: 300% 300%;
   animation: gradientFlow 6s ease infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+}
+
+@keyframes orbFloat1 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(50px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 30px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes orbFloat2 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(-60px, 40px) scale(1.2); }
+  66% { transform: translate(30px, -30px) scale(0.8); }
+  100% { transform: translate(0px, 0px) scale(1); }
 }
 
 .feature-card {

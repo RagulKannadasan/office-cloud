@@ -1,21 +1,12 @@
-export default function Workflow() {
-  const steps = [
-    {
-      num: "01",
-      title: "Secure Login",
-      desc: "Authenticate via magic link. The system automatically registers you and verifies your credentials against the central DB."
-    },
-    {
-      num: "02",
-      title: "Auto-Assignment",
-      desc: "Based on predefined company logic, you are instantly routed to your specific Executive, Manager, or Employee dashboard."
-    },
-    {
-      num: "03",
-      title: "Real-Time Tracking",
-      desc: "Begin clocking hours, reviewing attendance sheets, or viewing organization-wide analytics without any setup delay."
-    }
-  ];
+interface Props {
+  steps: {
+    num: string;
+    title: string;
+    desc: string;
+  }[];
+}
+
+export default function Workflow({ steps }: Props) {
 
   return (
     <section style={{ padding: '6rem 1rem', background: 'rgba(0,0,0,0.2)' }}>
@@ -69,7 +60,7 @@ export default function Workflow() {
                 fontWeight: 'bold',
                 color: 'var(--primary-color)',
                 zIndex: 1,
-                flexShrina: 0
+                flexShrink: 0
               }}>
                 {step.num}
               </div>

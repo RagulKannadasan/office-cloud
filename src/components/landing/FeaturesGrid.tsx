@@ -1,26 +1,12 @@
-export default function FeaturesGrid() {
-  const features = [
-    {
-      title: "Role-Based Access",
-      desc: "Strictly enforced security boundaries. CEOs see analytics, Managers handle assignments, and Team Leaders monitor squads.",
-      icon: "🛡️"
-    },
-    {
-      title: "Real-Time Attendance",
-      desc: "Instant clock-in/out syncing. Track active hours, breaks, and daily completion logs directly from the dashboard.",
-      icon: "⏱️"
-    },
-    {
-      title: "Executive Analytics",
-      desc: "High-level KPI dashboards designed for the C-Suite. Visualize workforce trends and project burn rates at a glance.",
-      icon: "📈"
-    },
-    {
-      title: "Squad Management",
-      desc: "Granular control for Team Leaders. Assign tasks, view direct reports, and optimize the velocity of your engineering squads.",
-      icon: "👥"
-    }
-  ];
+interface Props {
+  features: {
+    title: string;
+    desc: string;
+    icon: string;
+  }[];
+}
+
+export default function FeaturesGrid({ features }: Props) {
 
   return (
     <section id="features" style={{ padding: '6rem 1rem' }}>
