@@ -5,6 +5,8 @@ import Workflow from '@/components/landing/Workflow';
 import ThemeToggle from '@/components/ThemeToggle';
 import { getLandingContent } from '@/actions/admin.actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const content = await getLandingContent();
 
