@@ -2,6 +2,20 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 
+export async function generateEmployeeId() {
+  const lastUser = await prisma.user.findFirst({
+    where: { employeeId: { not: null } },
+    orderBy: { employeeId: 'desc' }
+  });
+  let nextNum = 1;
+  if (lastUser && lastUser.employeeId) {
+    const numPart = lastUser.employeeId.replace('EM', '');
+    const num = parseInt(numPart);
+    if (!isNaN(num)) nextNum = num + 1;
+  }
+  return `EM${String(nextNum).padStart(3, '0')}`;
+}
+
 export async function getCompanyDirectory() {
   return await prisma.user.findMany({
     where: { status: 'Active' },
@@ -17,7 +31,10 @@ export async function getSquad(tlId: string) {
 }
 
 export async function createTeamMember(data: any) {
-  await prisma.user.create({ data })
+  const employeeId = await generateEmployeeId();
+  await prisma.user.create({ 
+    data: { ...data, employeeId } 
+  });
   revalidatePath('/dashboard/team')
 }
 

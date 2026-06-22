@@ -23,7 +23,10 @@ export default function TLTeamView({ squad }: { squad: any[] }) {
           <tbody>
             {squad.map(member => (
               <tr key={member.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <td style={{ padding: '1rem' }}>{member.name}</td>
+                <td style={{ padding: '1rem' }}>
+                  <div style={{ fontWeight: 600 }}>{member.name}</div>
+                  {member.employeeId && <div style={{ fontSize: '0.8rem', color: 'var(--primary-color)' }}>{member.employeeId}</div>}
+                </td>
                 <td style={{ padding: '1rem' }}>{member.email}</td>
                 <td style={{ padding: '1rem' }}>{member.department || 'N/A'}</td>
                 <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>

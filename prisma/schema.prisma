@@ -12,6 +12,7 @@ datasource db {
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
+  employeeId   String?  @unique
   name         String?
   role         String   @default("employee") // ceo, manager, tl, employee
   status       String   @default("Active") // Active, Pending

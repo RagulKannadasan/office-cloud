@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { hashOtp, signToken } from '@/utils/auth';
 import { prisma } from '@/lib/prisma';
+import { generateEmployeeId } from '@/actions/user.actions';
 
 export async function POST(request: Request) {
   try {
@@ -36,12 +37,15 @@ export async function POST(request: Request) {
         defaultRole = 'tl';
       }
       
+      const empId = await generateEmployeeId();
+      
       dbUser = await prisma.user.create({
         data: {
           email,
           name: email.split('@')[0],
           role: defaultRole,
-          status: defaultStatus
+          status: defaultStatus,
+          employeeId: empId
         }
       });
     }

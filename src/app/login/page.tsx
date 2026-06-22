@@ -137,9 +137,10 @@ export default function LoginPage() {
               <button
                 type="submit"
                 className="btn"
-                style={{ width: '100%', marginTop: '1rem', padding: '0.875rem', fontSize: '1rem', fontWeight: 600 }}
+                style={{ width: '100%', marginTop: '1rem', padding: '0.875rem', fontSize: '1rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                 disabled={loading}
               >
+                {loading && <span className="spinner"></span>}
                 {loading ? 'Sending Magic Link...' : 'Continue with Email'}
               </button>
             </form>
@@ -169,9 +170,10 @@ export default function LoginPage() {
               <button
                 type="submit"
                 className="btn"
-                style={{ width: '100%', marginTop: '1.5rem', padding: '0.875rem', fontSize: '1rem', fontWeight: 600 }}
+                style={{ width: '100%', marginTop: '1.5rem', padding: '0.875rem', fontSize: '1rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                 disabled={loading || otp.length !== 6}
               >
+                {loading && <span className="spinner"></span>}
                 {loading ? 'Verifying...' : 'Authenticate'}
               </button>
               <button

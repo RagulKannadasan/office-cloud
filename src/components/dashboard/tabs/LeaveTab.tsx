@@ -1,49 +1,46 @@
-import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/utils/auth';
-import { getMyLeaveRequests, getTeamLeaveRequests, submitLeaveRequest, updateLeaveStatus } from '@/actions/leave.actions';
-import { revalidatePath } from 'next/cache';
+'use client';
 
-export default async function LeaveManagementPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('session_token')?.value;
-  if (!token) redirect('/login');
-  const user: any = await verifyToken(token);
-  if (!user) redirect('/login');
+import { useState } from 'react';
+import { submitLeaveRequest, updateLeaveStatus } from '@/actions/leave.actions';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
-  const role = user.role || 'employee';
+export default function LeaveTab({ data }: { data: any }) {
+  const { role, myLeaves, teamLeaves } = data;
+  
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, leaveId: string | null}>({
+    isOpen: false,
+    leaveId: null
+  });
 
-  // Fetch data
-  const myLeavesRes = await getMyLeaveRequests();
-  const teamLeavesRes = (role !== 'employee') ? await getTeamLeaveRequests() : { success: true, data: [] };
-
-  const myLeaves = (myLeavesRes.success && myLeavesRes.data) ? myLeavesRes.data : [];
-  const teamLeaves = (teamLeavesRes.success && teamLeavesRes.data) ? teamLeavesRes.data : [];
-
-  // Actions
   async function submitForm(formData: FormData) {
-    'use server';
     const startDate = new Date(formData.get('startDate') as string);
     const endDate = new Date(formData.get('endDate') as string);
     const reason = formData.get('reason') as string;
     await submitLeaveRequest(startDate, endDate, reason);
-    revalidatePath('/dashboard/leave');
+    // Since we are SPA, we should ideally trigger a refresh. 
+    // Next.js server actions handle revalidation, but we need window.location.reload() or similar if not handled by framework.
+    window.location.reload();
   }
 
   async function approveLeave(formData: FormData) {
-    'use server';
     await updateLeaveStatus(formData.get('id') as string, 'Approved');
-    revalidatePath('/dashboard/leave');
+    window.location.reload();
   }
 
   async function denyLeave(formData: FormData) {
-    'use server';
-    await updateLeaveStatus(formData.get('id') as string, 'Denied');
-    revalidatePath('/dashboard/leave');
+    const id = formData.get('id') as string;
+    setConfirmModal({ isOpen: true, leaveId: id });
+  }
+
+  async function executeDenyLeave() {
+    if (confirmModal.leaveId) {
+      await updateLeaveStatus(confirmModal.leaveId, 'Denied');
+      window.location.reload();
+    }
   }
 
   return (
-    <div className="container" style={{ padding: '2rem 0' }}>
+    <div style={{ padding: '1rem 0' }}>
       <h1 style={{ marginBottom: '2rem' }}>Leave Management</h1>
 
       <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
@@ -162,6 +159,17 @@ export default async function LeaveManagementPage() {
           </div>
         )}
       </div>
+
+      <ConfirmModal 
+        isOpen={confirmModal.isOpen}
+        title="Deny Leave Request"
+        message="Are you sure you want to deny this leave request? This action cannot be undone."
+        confirmText="Yes, Deny"
+        cancelText="Cancel"
+        isDanger={true}
+        onConfirm={executeDenyLeave}
+        onCancel={() => setConfirmModal({ isOpen: false, leaveId: null })}
+      />
     </div>
   );
 }

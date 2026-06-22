@@ -1,9 +1,12 @@
-'use client';
 import { useState } from 'react';
 import { createTeamMember, removeTeamMember, approveUser } from '@/actions/user.actions';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function ManagerTeamView({ initialMembers, pendingUsers = [] }: { initialMembers: any[], pendingUsers?: any[] }) {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, userId: string | null, type: 'remove' | 'reject' | null}>({
+    isOpen: false, userId: null, type: null
+  });
   const [newMember, setNewMember] = useState({ email: '', name: '', role: 'employee', department: 'Engineering', tlId: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,10 +28,17 @@ export default function ManagerTeamView({ initialMembers, pendingUsers = [] }: {
     setIsSubmitting(false);
   };
 
-  const handleRemove = async (id: string) => {
-    if (confirm('Are you sure you want to remove this user?')) {
-      await removeTeamMember(id);
+  const handleRemoveClick = (id: string, type: 'remove' | 'reject') => {
+    setConfirmModal({ isOpen: true, userId: id, type });
+  };
+
+  const executeRemoveOrReject = async () => {
+    if (confirmModal.userId) {
+      // In this case, both remove and reject use the removeTeamMember action 
+      // (which deletes the user record from the database)
+      await removeTeamMember(confirmModal.userId);
     }
+    setConfirmModal({ isOpen: false, userId: null, type: null });
   };
 
   const handleApprove = async (id: string) => {
@@ -58,7 +68,10 @@ export default function ManagerTeamView({ initialMembers, pendingUsers = [] }: {
                   <tr key={user.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
                     <td style={{ padding: '1rem' }}>
                       <div style={{ fontWeight: 600 }}>{user.email}</div>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{user.name}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        {user.employeeId && <span style={{ marginRight: '8px', color: 'var(--primary-color)' }}>{user.employeeId}</span>}
+                        {user.name}
+                      </div>
                     </td>
                     <td style={{ padding: '1rem', color: 'var(--text-secondary)' }}>
                       {new Date(user.createdAt).toLocaleDateString()}
@@ -74,7 +87,7 @@ export default function ManagerTeamView({ initialMembers, pendingUsers = [] }: {
                       <button 
                         className="btn-outline" 
                         style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderColor: 'var(--danger-color)', color: 'var(--danger-color)' }}
-                        onClick={() => handleRemove(user.id)}
+                        onClick={() => handleRemoveClick(user.id, 'reject')}
                       >
                         Reject
                       </button>
@@ -108,7 +121,10 @@ export default function ManagerTeamView({ initialMembers, pendingUsers = [] }: {
               <tr key={member.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <td style={{ padding: '1rem' }}>
                   <div>{member.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{member.email}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    {member.employeeId && <span style={{ marginRight: '8px', color: 'var(--primary-color)' }}>{member.employeeId}</span>}
+                    {member.email}
+                  </div>
                 </td>
                 <td style={{ padding: '1rem' }}>
                   <span style={{ 
@@ -130,7 +146,7 @@ export default function ManagerTeamView({ initialMembers, pendingUsers = [] }: {
                   <button 
                     className="btn btn-outline" 
                     style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem', borderColor: '#ef4444', color: '#ef4444' }}
-                    onClick={() => handleRemove(member.id)}
+                    onClick={() => handleRemoveClick(member.id, 'remove')}
                   >
                     Remove
                   </button>
@@ -191,6 +207,17 @@ export default function ManagerTeamView({ initialMembers, pendingUsers = [] }: {
           </div>
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.type === 'reject' ? "Reject Application" : "Remove Member"}
+        message={confirmModal.type === 'reject' ? "Are you sure you want to reject this access request? This cannot be undone." : "Are you sure you want to remove this member from the directory? This will permanently delete their account and associated records."}
+        confirmText={confirmModal.type === 'reject' ? "Yes, Reject" : "Yes, Remove"}
+        cancelText="Cancel"
+        isDanger={true}
+        onConfirm={executeRemoveOrReject}
+        onCancel={() => setConfirmModal({ isOpen: false, userId: null, type: null })}
+      />
     </div>
   );
 }

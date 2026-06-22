@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 
 interface HeroProps {
   titleLine1: string;
@@ -23,11 +24,9 @@ export default function Hero({ titleLine1, titleGradient, subtitle }: HeroProps)
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       
-      // Calculate normalized position (-1 to 1)
       const moveX = (clientX - centerX) / centerX;
       const moveY = (clientY - centerY) / centerY;
 
-      // Update transforms directly (bypasses React render cycle for zero lag)
       orb1Ref.current.style.transform = `translate(${moveX * 30}px, ${moveY * 30}px)`;
       orb2Ref.current.style.transform = `translate(${moveX * -40}px, ${moveY * -40}px)`;
       orb3Ref.current.style.transform = `translate(-50%, -50%) translate(${moveX * 20}px, ${moveY * 20}px)`;
@@ -62,7 +61,7 @@ export default function Hero({ titleLine1, titleGradient, subtitle }: HeroProps)
         pointerEvents: 'none'
       }}></div>
 
-      {/* Interactive Background Orbs (Lag-free via refs + hardware acceleration) */}
+      {/* Interactive Background Orbs */}
       <div 
         ref={orb1Ref}
         style={{
@@ -109,56 +108,78 @@ export default function Hero({ titleLine1, titleGradient, subtitle }: HeroProps)
         }}
       ></div>
 
-      <h1 style={{ 
-        fontSize: 'clamp(3rem, 5vw, 4.5rem)', 
-        lineHeight: 1.1,
-        marginBottom: '1.5rem',
-        maxWidth: '800px',
-        background: 'none', 
-        WebkitTextFillColor: 'initial',
-        position: 'relative',
-        zIndex: 2
-      }}>
+      <motion.h1 
+        initial={{ opacity: 0, y: 50, scale: 0.9, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 } as any}
+        style={{ 
+          fontSize: 'clamp(3rem, 5vw, 4.5rem)', 
+          lineHeight: 1.1,
+          marginBottom: '1.5rem',
+          maxWidth: '800px',
+          background: 'none', 
+          WebkitTextFillColor: 'initial',
+          position: 'relative',
+          zIndex: 2
+        }}
+      >
         {titleLine1}<br />
         <span className="animated-gradient-text">{titleGradient}</span>
-      </h1>
+      </motion.h1>
       
-      <p style={{
-        color: 'var(--text-secondary)',
-        fontSize: '1.25rem',
-        maxWidth: '600px',
-        marginBottom: '3rem',
-        lineHeight: 1.6,
-        position: 'relative',
-        zIndex: 2
-      }}>
+      <motion.p 
+        initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 } as any}
+        style={{
+          color: 'var(--text-secondary)',
+          fontSize: '1.25rem',
+          maxWidth: '600px',
+          marginBottom: '3rem',
+          lineHeight: 1.6,
+          position: 'relative',
+          zIndex: 2
+        }}
+      >
         {subtitle}
-      </p>
+      </motion.p>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '5rem', position: 'relative', zIndex: 2 }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 } as any}
+        style={{ display: 'flex', gap: '1rem', marginBottom: '5rem', position: 'relative', zIndex: 2 }}
+      >
         <Link href="/login" className="btn" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
           Access Workspace
         </Link>
         <a href="#features" className="btn btn-outline" style={{ padding: '1rem 2rem', fontSize: '1.1rem', color: 'var(--text-primary)', borderColor: 'var(--glass-border)' }}>
           Explore Features
         </a>
-      </div>
+      </motion.div>
 
       {/* Floating Dashboard Mockup */}
-      <div className="glass-panel" style={{
-        width: '100%',
-        maxWidth: '900px',
-        height: '450px',
-        position: 'relative',
-        animation: 'float 6s ease-in-out infinite',
-        border: '1px solid var(--glass-border)',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        padding: 0,
-        zIndex: 2
-      }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 100, rotateX: 15, scale: 0.9, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1, filter: 'blur(0px)' }}
+        transition={{ type: "spring", stiffness: 80, damping: 20, delay: 0.3 } as any}
+        className="glass-panel" 
+        style={{
+          perspective: '1000px',
+          width: '100%',
+          maxWidth: '900px',
+          height: '450px',
+          position: 'relative',
+          animation: 'float 6s ease-in-out infinite',
+          border: '1px solid var(--glass-border)',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          padding: 0,
+          zIndex: 2
+        }}
+      >
         <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--glass-border)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
           <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#f59e0b' }}></div>
@@ -183,7 +204,7 @@ export default function Hero({ titleLine1, titleGradient, subtitle }: HeroProps)
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

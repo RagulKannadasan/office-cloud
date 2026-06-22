@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from '@/components/ThemeProvider';
+import ProgressBar from '@/components/ui/ProgressBar';
 
 export default function RootLayout({
   children,
@@ -29,7 +30,9 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          {children}
+          <ProgressBar>
+            {children}
+          </ProgressBar>
         </ThemeProvider>
       </body>
     </html>

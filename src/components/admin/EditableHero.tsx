@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface EditableHeroProps {
   initialContent: {
@@ -134,7 +135,12 @@ export default function EditableHero({ initialContent }: EditableHeroProps) {
         }}
       ></div>
 
-      <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '800px', marginBottom: '1.5rem' }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 50, scale: 0.9, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 } as any}
+        style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '800px', marginBottom: '1.5rem' }}
+      >
         <h1 style={{ 
           fontSize: 'clamp(3rem, 5vw, 4.5rem)', 
           lineHeight: 1.1,
@@ -158,9 +164,14 @@ export default function EditableHero({ initialContent }: EditableHeroProps) {
             title="Click to edit Gradient Text"
           />
         </h1>
-      </div>
+      </motion.div>
       
-      <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '600px', marginBottom: '3rem' }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 } as any}
+        style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '600px', marginBottom: '3rem' }}
+      >
         <textarea
           value={subtitle}
           onChange={e => setSubtitle(e.target.value)}
@@ -176,16 +187,21 @@ export default function EditableHero({ initialContent }: EditableHeroProps) {
           onFocus={handleFocus} onBlur={handleBlur} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
           title="Click to edit Subtitle"
         />
-      </div>
+      </motion.div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '5rem', position: 'relative', zIndex: 2 }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 } as any}
+        style={{ display: 'flex', gap: '1rem', marginBottom: '5rem', position: 'relative', zIndex: 2 }}
+      >
         <div className="btn" style={{ padding: '1rem 2rem', fontSize: '1.1rem', pointerEvents: 'none', opacity: 0.8 }}>
           Access Workspace
         </div>
         <div className="btn btn-outline" style={{ padding: '1rem 2rem', fontSize: '1.1rem', color: 'var(--text-primary)', borderColor: 'var(--glass-border)', pointerEvents: 'none', opacity: 0.8 }}>
           Explore Features
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

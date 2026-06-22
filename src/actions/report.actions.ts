@@ -52,3 +52,38 @@ export async function getAttendanceReport() {
 
   return chartData;
 }
+
+export async function getMyAttendanceReport() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('session_token')?.value;
+  if (!token) throw new Error('Not authenticated');
+  const user = await verifyToken(token);
+  if (!user) throw new Error('Unauthorized');
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const logs = await prisma.attendanceLog.findMany({
+    where: {
+      userId: user.id as string,
+      checkIn: { gte: thirtyDaysAgo },
+      status: 'Completed'
+    },
+    select: { checkIn: true, hours: true }
+  });
+
+  const aggregated: Record<string, number> = {};
+  logs.forEach(log => {
+    const dateStr = new Date(log.checkIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    aggregated[dateStr] = (aggregated[dateStr] || 0) + (log.hours || 0);
+  });
+
+  const chartData = Object.keys(aggregated).map(date => ({
+    date,
+    hours: Math.round(aggregated[date] * 10) / 10
+  }));
+
+  chartData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  return chartData;
+}
