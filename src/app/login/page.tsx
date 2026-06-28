@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -65,6 +66,38 @@ export default function LoginPage() {
     router.refresh();
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential })
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setError(data.error || 'Google login failed');
+        setLoading(false);
+        return;
+      }
+
+      if (data.pending) {
+        setStep('PENDING');
+        setLoading(false);
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err) {
+      setError('An unexpected error occurred during Google Login.');
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Premium Background Glow */}
@@ -88,12 +121,14 @@ export default function LoginPage() {
       </nav>
 
       <div className="container auth-container" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="auth-card glass-panel" style={{ 
-          animation: 'scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)', 
-          padding: '3rem',
-          maxWidth: '440px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-        }}>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'missing_client_id'}>
+          <div className="auth-card glass-panel" style={{ 
+            animation: 'scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)', 
+            padding: '3rem',
+            maxWidth: '440px',
+            width: '100%',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+          }}>
           
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <div style={{ 
@@ -143,6 +178,27 @@ export default function LoginPage() {
                 {loading && <span className="spinner"></span>}
                 {loading ? 'Sending Magic Link...' : 'Continue with Email'}
               </button>
+              
+              <div style={{ 
+                display: 'flex', alignItems: 'center', margin: '2rem 0',
+                color: 'var(--text-secondary)', fontSize: '0.875rem'
+              }}>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                <span style={{ padding: '0 1rem' }}>OR</span>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Google Login Failed')}
+                  useOneTap
+                  theme="filled_black"
+                  shape="rectangular"
+                  size="large"
+                  text="continue_with"
+                />
+              </div>
             </form>
           ) : step === 'OTP' ? (
             <form onSubmit={handleVerifyOtp} style={{ animation: 'fadeIn 0.3s ease' }}>
@@ -216,7 +272,8 @@ export default function LoginPage() {
               </button>
             </div>
           ) : null}
-        </div>
+          </div>
+        </GoogleOAuthProvider>
       </div>
     </div>
   );
